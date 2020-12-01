@@ -13,3 +13,5 @@ Promise.all()
 Promise.then()
 Promise.catch()
 Promise.race()
+
+//async await语法
