@@ -1,0 +1,11 @@
+{
+  "name": "async",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/smk1628/Promise_async-await.git",
+  "author": "smk1628 <1628150422@qq.com>",
+  "license": "MIT",
+  "dependencies": {
+    "json-server": "^0.16.3"
+  }
+}
