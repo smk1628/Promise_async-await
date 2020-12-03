@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>axios_cancel_finally拦截器自动取消未完成的请求</title>
+</head>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
+<body>
+    <button onclick="getPosts()">获取posts数据</button>
+    <button onclick="getComments()">获取comments数据</button>
+    <!-- <button onclick="cancelRequest()">取消请求</button> -->
+</body>
+<script>
+    axios.defaults.baseURL = 'http://localhost:3000'
+    let cancel
+
+
+    //添加请求拦截器
+    axios.interceptors.request.use(config =>{
+        //如果有cancel则取消当前请求
+        if(cancel) cancel('强制取消请求')
+        config.cancelToken = new axios.CancelToken((c)=>{ //在CancelToken中立即同步执行，并传入用于取消请求的函数
+                cancel = c //保存用于取消请求的函数
+            })
+        return config
+    })
+
+    //添加响应拦截器
+    axios.interceptors.response.use(
+        response => {
+            cancel = null //如果响应成功清空取消函数
+            return response
+        },
+        error => {
+            if(axios.isCancel(error)) {
+                console.log('取消请求',error.message)    
+            }
+            else {
+                cancel = null
+                console.log('onRejected',error.message)
+            } 
+            return new Promise(()=>{}) //中断promise链：返回pending状态promise
+        }
+    )
+    function getPosts() {       
+        axios({
+            url:'/posts'           
+        }).then(
+            response => {
+                console.log('posts onResolved',response.data)
+            }
+        )
+    }
+
+    function getComments() {
+        axios({
+            url:'/comments'
+        }).then(
+            response => {
+                console.log('Comments onResolved',response.data)
+            }
+        )
+    }
+
+    function cancelRequest() {
+        if(cancel) cancel('强制取消请求')
+    }
+</script>
+</html>

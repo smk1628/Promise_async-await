@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>axios_cancel_finally自动取消未完成的请求</title>
+</head>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
+<body>
+    <button onclick="getPosts()">获取posts数据</button>
+    <button onclick="getComments()">获取comments数据</button>
+    <!-- <button onclick="cancelRequest()">取消请求</button> -->
+</body>
+<script>
+    axios.defaults.baseURL = 'http://localhost:3000'
+    let cancel
+
+    function getPosts() {
+        //如果有cancel则取消当前请求
+        if(cancel) cancel('强制取消请求')
+
+        axios({
+            url:'/posts',
+            cancelToken: new axios.CancelToken((c)=>{ //在CancelToken中立即同步执行，并传入用于取消请求的函数
+                cancel = c //保存用于取消请求的函数
+            })
+        }).then(
+            response => {
+                cancel = null //如果响应成功清空取消函数
+                console.log('posts onResolved',response.data)
+            },
+            error => {
+                if(axios.isCancel(error)) console.log('取消请求',error.message)
+                else {
+                    cancel = null
+                    console.log('posts onRejected',error.message)
+                }
+            }
+        )
+    }
+
+    function getComments() {
+        //如果有cancel则取消当前请求
+        if(cancel) cancel('强制取消请求')
+        
+        axios({
+            url:'/comments',
+            cancelToken: new axios.CancelToken((c)=>{ //在CancelToken中立即同步执行，并传入用于取消请求的函数
+                cancel = c //保存用于取消请求的函数
+            })
+        }).then(
+            response => {
+                cancel = null //如果响应成功清空取消函数
+                console.log('Comments onResolved',response.data)
+            },
+            error => {
+                if(axios.isCancel(error)) console.log('取消请求',error.message)
+                else {
+                    cancel = null
+                    console.log('Comments onRejected',error.message)
+                }
+            }
+        )
+    }
+
+    function cancelRequest() {
+        if(cancel) cancel('强制取消请求')
+    }
+</script>
+</html>
