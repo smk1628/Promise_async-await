@@ -57,6 +57,8 @@
             }
         })
     }
+    axios.get = (url,config)=>{return axios(Object.assign({url},config))} //Object.assign({url},config) 将两个对象合并成一个对象
+    axios.post = (url,data,config)=>{return axios(Object.assign({url,data},config))}
     document.getElementById('get').onclick = ()=>{
         axios({
         url:"http://localhost:3000/posts",
