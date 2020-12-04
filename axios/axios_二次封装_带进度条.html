@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>axios二次封装</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.min.css">
+</head>
+<body>
+    <button onclick="sendGet()">发送get请求</button>
+    <button onclick="sendPost()">发送post请求</button>
+</body>
+<!--
+    1).统一进行请求配置
+    2).请求过程中loading提示
+    3).请求体参数以urlencoded形式传递
+    4).请求成功的value不再是response，而是response.data
+    5).请求失败统一进行提示处理，每个请求不需要单独处理
+
+-->
+<script src="https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/qs/6.9.4/qs.min.js"></script>
+<script>
+    const instance = axios.create({
+        baseURL:'http://localhost:3000',
+        timeout:10000
+    })
+    instance.interceptors.request.use((config)=>{
+        NProgress.start()
+        if(config.data instanceof Object){
+            config.data = Qs.stringify(config.data)
+        }
+        return config
+    })
+    instance.interceptors.response.use(
+        res =>{
+            NProgress.done()
+            return res.data
+        },
+        err =>{
+            NProgress.done()
+            alert(err)
+            return new Promise(()=>{})
+        }
+    )
+</script>
+
+<script>
+    async function sendGet(){
+        const result = await instance.get('/posts2')
+        console.table(result)
+    }
+    async function sendPost(){
+        const result = await instance.post('/posts',{id:(new Date()).getTime(),title:'newTitle',author:'newAuther'})
+        console.table(result)
+    }
+</script>
+</html>
