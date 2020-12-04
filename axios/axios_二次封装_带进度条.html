@@ -29,6 +29,7 @@
     })
     instance.interceptors.request.use((config)=>{
         //2).请求过程中loading提示
+        NProgress.configure({ showSpinner: false }); //关闭右上角loading图标
         NProgress.start()
         //3).请求体参数以urlencoded形式传递
         if(config.data instanceof Object){
