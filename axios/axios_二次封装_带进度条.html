@@ -23,11 +23,14 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/qs/6.9.4/qs.min.js"></script>
 <script>
     const instance = axios.create({
+        //1).统一进行请求配置
         baseURL:'http://localhost:3000',
         timeout:10000
     })
     instance.interceptors.request.use((config)=>{
+        //2).请求过程中loading提示
         NProgress.start()
+        //3).请求体参数以urlencoded形式传递
         if(config.data instanceof Object){
             config.data = Qs.stringify(config.data)
         }
@@ -36,10 +39,12 @@
     instance.interceptors.response.use(
         res =>{
             NProgress.done()
+            //4).请求成功的value不再是response，而是response.data
             return res.data
         },
         err =>{
             NProgress.done()
+            //5).请求失败统一进行提示处理，每个请求不需要单独处理
             alert(err)
             return new Promise(()=>{})
         }
